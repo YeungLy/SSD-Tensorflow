@@ -95,32 +95,22 @@ class KittiObject:
             i, j = k+4, (k+1)%4
             bbox3d_mid[i] = (bbox3d_corner[i]+bbox3d_corner[j]) / 2
             bbox3d_total = np.vstack((bbox3d_corner, bbox3d_mid))
-        # point_idx [down_corner, up_corner, down_mid, up_mid]
+
         distance = np.sum(np.square(bbox3d_total), axis=1)
         nearest_idx = np.argmin(distance)  
-        #another_nearest = (nearest_idx % 8 + 4 ) % 8 + (nearest_idx / 8) * 8
-        #nearest_mid = (bbox3d_total[nearest_idx] + bbox3d_total[another_nearest]) / 2
-        #distance_mid = np.sum(np.square(nearest_mid))
-        
-        distance_center = np.sqrt(np.sum(np.square(self.t)))
-        y_angle = np.arccos(self.t[1] / distance_center)
-        #all 80+ ??????
-        print('angle between y-axis and obj center to camera center {}'.format(y_angle * 180 / np.pi))        
-        #whats the difference between front view and top  view.....
-        if nearest_idx % 8 >= 4:
-            #difference = distance_mid - distance[nearest_idx] 
-            #print('difference dist between nearest {} and mid  is {}'.format(nearest_idx, difference))
-            if y_angle >  85: #difference < 0.5:
-                print('camera should be looking front..') 
-            else:
-                print('camera looking down... too near from camera') 
-        else:
-            print('camera looking up(flat view) ... too far from camera')
+        #distane from object center to camera 
+        distance_obj_cam = np.sqrt(np.sum(np.square(self.t)))
+        topdown_angle = np.arccos(self.t[1] / distance_center)
+        print('angle between y-axis and obj center to camera center {}'.format(topdown_angle * 180 / np.pi))        
 
-        #if the nearest is down_corner, then camera is looking up..  
+        #whats the difference between front view and top  view.....
         vertical_view = ['front', 'top']
-        vertical_idx = np.int(nearest_idx % 8 / 4)
-        print(vertical_idx)
+        if topdown_angle > 0 and topdown_angle < 85 * np.pi / 180:
+            print('camera looking front(flat view) ... too far from camera')
+            vertical_idx = 0
+        else:
+            print('camera looking down... too near by camera') 
+            vertical_idx = 1
 
 
         horizontal_view = ['left head', 'right head', 'right tail', 'left tail', \
