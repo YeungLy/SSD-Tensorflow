@@ -98,6 +98,13 @@ class KittiObject:
 
         distance = np.sum(np.square(bbox3d_total), axis=1)
         nearest_idx = np.argmin(distance)  
+
+
+        #top_center = (bbox3d_corner[4] + bbox3d_corner[6]) / 2
+        #distance_obj_cam = np.sqrt(np.sum(np.square(top_center)))
+        #topdown_angle = np.arccos(top_center[1] / distance_obj_cam)
+        #print('center of top: {}, other corner: {}, {}'.format(top_center, bbox3d_corner[4], bbox3d_corner[6]))
+        
         #distane from object center to camera 
         distance_obj_cam = np.sqrt(np.sum(np.square(self.t)))
         topdown_angle = np.arccos(self.t[1] / distance_obj_cam)
@@ -115,12 +122,11 @@ class KittiObject:
 
         horizontal_view = ['left head', 'right head', 'right tail', 'left tail', \
                            'head mid', 'right mid', 'tail mid', 'left mid' ]
-        horizontal_idx = np.int((nearest_idx % 8) % 4+ (nearest_idx / 8) * 4)
-        print('nearest idx ', nearest_idx)
+        horizontal_idx = (nearest_idx % 8) % 4+ np.int(nearest_idx / 8) * 4
         print('view from nearest point vertical: {} horizontal: {}' \
                 .format(vertical_view[vertical_idx], horizontal_view[horizontal_idx]))
 
- 
+        self.viewtype = vertical_view[vertical_idx]
         return nearest_idx
 
     
