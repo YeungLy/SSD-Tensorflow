@@ -100,17 +100,17 @@ class KittiObject:
         nearest_idx = np.argmin(distance)  
         #distane from object center to camera 
         distance_obj_cam = np.sqrt(np.sum(np.square(self.t)))
-        topdown_angle = np.arccos(self.t[1] / distance_center)
+        topdown_angle = np.arccos(self.t[1] / distance_obj_cam)
         print('angle between y-axis and obj center to camera center {}'.format(topdown_angle * 180 / np.pi))        
 
         #whats the difference between front view and top  view.....
         vertical_view = ['front', 'top']
         if topdown_angle > 0 and topdown_angle < 85 * np.pi / 180:
-            print('camera looking front(flat view) ... too far from camera')
-            vertical_idx = 0
-        else:
             print('camera looking down... too near by camera') 
             vertical_idx = 1
+        else:
+            print('camera looking front(flat view) ... too far from camera')
+            vertical_idx = 0
 
 
         horizontal_view = ['left head', 'right head', 'right tail', 'left tail', \
@@ -206,7 +206,7 @@ def convert_to_xml(source_dir, target_dir, filename):
     f_image = os.path.join(source_dir, 'image_2', filename+'.png')
     f_target = os.path.join(target_dir, filename+'.xml')
     #print(f_source, f_image, f_target)
-    doc = Document()  # 创建DOM文档对象
+    doc = Document()  # create DOM document
 
     annotation = doc.createElement('annotation')
     doc.appendChild(annotation)
@@ -259,6 +259,7 @@ def convert_to_xml(source_dir, target_dir, filename):
             if line.startswith('DontCare') or line.startswith('Misc'):
                 continue
             obj = KittiObject(line) 
+            #merge Car class and merge Pedestrian class
             if obj.type_name in ['Van', 'Truck', 'Tram']:
                 obj.type_name = 'Car'
             elif obj.type_name in ['Person_sitting']:
